@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Webshop</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <header class="relative bg-white">
+        <p class="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8">Get free delivery on orders over $100</p>
+
+        <nav aria-label="Top" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="border-b border-gray-200">
+                <div class="flex h-16 items-center">
+                    <!-- Logo -->
+                    <div class="ml-4 flex lg:ml-0">
+                        <a href="/">
+                            <span>
+                                <img class="h-14 w-auto" src="/images/logo.svg" />
+                            </span>
+                        </a>
+                    </div>
+
+                    <div class="ml-auto flex items-center">
+                        <div class="hidden lg:ml-8 lg:flex">
+                            <span class="flex items-center text-gray-700 hover:text-gray-800">
+                                <img src="https://freesvg.org/img/sweflag.png" alt="" class="block h-auto w-5 flex-shrink-0" />
+                                <span class="ml-3 block text-sm font-medium">SEK</span>
+                            </span>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="flex lg:ml-6">
+                            <a href="/search">
+                                <span class="p-2 text-gray-400 hover:text-gray-500">
+                                    <img class="h-6 w-6" src="/images/icons/MagnifyingGlassIcon.svg" />
+                                </span>
+                            </a>
+                        </div>
+
+                        <!-- Cart -->
+                        <div class="ml-4 flow-root lg:ml-6">
+                            <a href="/cart">
+                                <span class="group -m-2 flex items-center p-2">
+                                    <img class="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500" src="/images/icons/ShoppingBagIcon.svg" />
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main class="container body-content">
+        @RenderBody()
+    </main>
+</body>
+</html>
