@@ -14,6 +14,11 @@ namespace Webshop
 
             builder.Services.AddControllersWithViews();
 
+            builder.Services.AddScoped<ProductContext>(provider =>
+            {
+                return new ProductContext();
+            });
+
             var server = builder.Build();
 
             if (!server.Environment.IsDevelopment())

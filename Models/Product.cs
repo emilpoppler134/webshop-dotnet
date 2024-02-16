@@ -1,14 +1,11 @@
-﻿namespace Webshop.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace Webshop.Models
 {
     public class Product
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-
-        public Product(String id, String name)
-        {
-            Id = id;
-            Name = name;
-        }
+        public int Id { get; set; }
+        public int Price { get; set; }
     }
 }

@@ -1,20 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Webshop.Models;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Webshop.Controllers
 {
     public class ProductController : Controller
     {
-        // GET: /<controller>/
-        public IActionResult Details(String id)
+        private readonly ProductContext _context;
+
+        public ProductController(ProductContext context)
         {
-            Product product = new(id, "Emil Poppler");
+            _context = context;
+        }
+
+        public async Task<IActionResult> Details(string id)
+        {
+            if (id == null || !int.TryParse(id, out int productId))
+            {
+                return BadRequest();
+            }
+
+            Product? product = await _context.Products.FindAsync(productId);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
 
             return View(product);
         }
