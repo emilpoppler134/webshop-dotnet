@@ -21,6 +21,13 @@ namespace Webshop
 
             var server = builder.Build();
 
+            using (var serviceScope = server.Services.CreateScope())
+            {
+                var serviceProvider = serviceScope.ServiceProvider;
+                var productContext = serviceProvider.GetRequiredService<ProductContext>();
+                productContext.Initialize();
+            }
+
             if (!server.Environment.IsDevelopment())
             {
                 server.UseExceptionHandler("/Home/Error");

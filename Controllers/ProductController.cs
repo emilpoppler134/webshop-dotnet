@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Webshop.Models;
 
 namespace Webshop.Controllers
@@ -20,14 +21,41 @@ namespace Webshop.Controllers
                 return BadRequest();
             }
 
-            Product? product = await _context.Products.FindAsync(productId);
+            // Product? product = await _context.Products.FindAsync(productId);
 
-            if (product == null)
+            var response = await (
+                from product in _context.Products
+                join stock in _context.Stocks on product.Id equals stock.ProductId
+                where product.Id == productId
+                select new ProductExtended
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Image = product.Image,
+                    Stock = _context.Stocks.Where(s => s.ProductId == product.Id).ToList()
+                }
+            )
+            .FirstOrDefaultAsync();
+
+            if (response == null)
             {
                 return NotFound();
             }
 
-            return View(product);
+            ProductExtended productExtended = response;
+
+            Console.WriteLine(productExtended.Id);
+            Console.WriteLine(productExtended.Name);
+            Console.WriteLine(productExtended.Image);
+
+            productExtended.Stock.ForEach(item => {
+                Console.WriteLine(item.Id);
+                Console.WriteLine(item.Price);
+                Console.WriteLine(item.Size);
+                Console.WriteLine(item.Quantity);
+            });
+
+            return View(productExtended);
         }
     }
 }
