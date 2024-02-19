@@ -49,6 +49,11 @@ namespace Webshop
                 pattern: "cart",
                 defaults: new { controller = "Home", action = "Cart" });
 
+                server.MapControllerRoute(
+                name: "search",
+                pattern: "search",
+                defaults: new { controller = "Home", action = "Search" });
+
             server.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}",

@@ -56,5 +56,10 @@ namespace Webshop.Controllers
 
             return View(extendedStockList);
         }
+
+        public IActionResult Success()
+        {
+            return View();
+        }
 	}
 }
