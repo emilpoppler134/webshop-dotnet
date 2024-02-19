@@ -1,7 +1,7 @@
 ﻿@using Webshop.Models;
 
 @{
-    ViewData["Title"] = string.Format("{0} - 50Archive", Model.Name);
+    ViewData["Title"] = Model.Name;
     string imageURL = string.Format("/images/products/{0}_large.png", Model.Image);
 
     List<Stock> stock = Model.Stock;
