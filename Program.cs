@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Stripe;
 
 namespace Webshop
 {
@@ -11,6 +12,14 @@ namespace Webshop
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(builder.Environment.ContentRootPath)
+                .AddJsonFile("appsettings.local.json")
+                .Build();
+
+            // Configure Stripe
+            StripeConfiguration.ApiKey = configuration.GetSection("Stripe")["SecretKey"];
 
             builder.Services.AddControllersWithViews();
 
