@@ -1,8 +1,144 @@
-﻿@{
+﻿@using Webshop.Models;
+
+@{
     ViewData["Title"] = "Cart";
+
+    List<StockExtended> products = Model;
+	
+	int shippingFee = 99;
 }
 
-<div class="text-center">
-    <span>This is the cart page</span>
+<div class="cart-view">
+    <div class="cart-product-list">
+		@foreach (StockExtended item in products)
+		{
+    		string productURL = string.Format("/products/{0}", item.Product.Id);
+    		string imageURL = string.Format("/images/products/{0}_small.png", item.Product.Image);
+			
+			<div class="cart-item" data-item-id="@item.Id">
+				<a class="cart-item--content" href="@productURL">
+					<img class="cart-item--image" src="@imageURL" />
+					<div class="cart-item--info">
+						<span>@item.Product.Name</span>
+						<span>Size: @item.Size</span>
+						<span>Price: @item.Price SEK</span>
+					</div>
+				</a>
+				<div class="remove-from-cart">
+					<button class="remove-from-cart--button">
+						<svg class="icon" viewBox="0 0 352 512">
+							<path d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path>
+						</svg>
+					</button>
+				</div>
+				<div class="overlay"></div>
+			</div>
+		}
+		<span class="empty-cart--text @(products.Count > 0 ? "hidden" : null)">No products in the cart!</span>
+    </div>
+	<div class="cart-summary">
+		<div class="summary-item">
+			<span>Summary</span>
+		</div>
+		<div class="summary-item">
+			<span>Subtotal</span>
+			<span class="subtotal--value">0.00 SEK</span>
+		</div>
+		<div class="summary-item">
+			<span>Shipping</span>
+			<span class="shipping-fee--value">0.00 SEK</span>
+		</div>
+		<div class="summary-item summary-item--bordered">
+			<span>Total</span>
+			<span class="total--value">0.00 SEK</span>
+		</div>
+
+		<button class="checkout-button" class="{'disabled': cart.length === 0}">Checkout</button>
+	</div>
 </div>
 
+<script>
+	const show = element => element.classList.contains("hidden") ? element.classList.remove("hidden") : null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(products));
+        const shippingFee = @Html.Raw(shippingFee);
+        const cart = getCartFromCookies();
+
+        const elements = {
+			cartItems: document.querySelectorAll(".cart-item"),
+			removeFromCartButtonList: document.querySelectorAll(".remove-from-cart--button"),
+			emptyCartText: document.querySelector(".empty-cart--text"),
+			checkoutButton: document.querySelector(".checkout-button"),
+            subtotalElement: document.querySelector(".subtotal--value"),
+            shippingFeeElement: document.querySelector(".shipping-fee--value"),
+            totalElement: document.querySelector(".total--value")
+        }
+
+        updateCartSummary({ products, shippingFee, cart, elements });
+
+        initializeRemoveFromCartButtons({ products, shippingFee, cart, elements });
+        initializeCheckoutButton({ elements, cart });
+    });
+
+    function getCartFromCookies() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === "cart") {
+                return JSON.parse(decodeURIComponent(value));
+            }
+        }
+        return [];
+    }
+
+    function initializeRemoveFromCartButtons({ products, shippingFee, cart, elements }) {
+        const { removeFromCartButtonList, emptyCartText } = elements;
+
+        removeFromCartButtonList.forEach((element) => {
+			element.addEventListener("click", (event) => {
+				const id = element.closest(".cart-item").getAttribute("data-item-id").value;
+				const product = products.find(item => item.Id === id);
+				const index = products.indexOf(product);
+
+				try {
+					cart.splice(index, 1);
+					document.cookie = `cart=${encodeURIComponent(JSON.stringify(cart))}; path=/`;
+
+					if (cart.length === 0) {
+						show(emptyCartText);
+					}
+
+					element.closest(".cart-item").remove();
+					updateCartSummary({ products, shippingFee, cart, elements });
+				} catch (err) {
+					console.error("Couldn't add to cart", err);
+				}
+			});
+		});
+    }
+
+	function updateCartSummary({ products, shippingFee, cart, elements }) {
+		const { subtotalElement, shippingFeeElement, totalElement } = elements;
+		
+		const subtotal = cart
+			.map(item => products.find(product => product.Id === item).Price)
+			.reduce((a, b) => a + b, 0);
+
+		const total = subtotal + shippingFee;
+
+		subtotalElement.innerText = subtotal + ".00 SEK";
+		shippingFeeElement.innerText = shippingFee + ".00 SEK";
+		totalElement.innerText = total + ".00 SEK";
+	}
+
+    function initializeCheckoutButton({ elements, cart }) { 
+        const { checkoutButton } = elements;
+
+        checkoutButton.addEventListener("click", () => {
+            if (cart.length > 0) {
+				window.location.href = "/checkout";
+			}
+        });
+    }
+</script>
