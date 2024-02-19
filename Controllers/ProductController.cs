@@ -21,8 +21,6 @@ namespace Webshop.Controllers
                 return BadRequest();
             }
 
-            // Product? product = await _context.Products.FindAsync(productId);
-
             var response = await (
                 from product in _context.Products
                 join stock in _context.Stocks on product.Id equals stock.ProductId
@@ -43,17 +41,6 @@ namespace Webshop.Controllers
             }
 
             ProductExtended productExtended = response;
-
-            Console.WriteLine(productExtended.Id);
-            Console.WriteLine(productExtended.Name);
-            Console.WriteLine(productExtended.Image);
-
-            productExtended.Stock.ForEach(item => {
-                Console.WriteLine(item.Id);
-                Console.WriteLine(item.Price);
-                Console.WriteLine(item.Size);
-                Console.WriteLine(item.Quantity);
-            });
 
             return View(productExtended);
         }

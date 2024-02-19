@@ -1,7 +1,133 @@
-﻿@{
-    ViewData["Title"] = "Product";
+﻿@using Webshop.Models;
+
+@{
+    ViewData["Title"] = string.Format("{0} - 50Archive", Model.Name);
+    string imageURL = string.Format("/images/products/{0}_large.png", Model.Image);
+
+    List<Stock> stock = Model.Stock;
+    int lowestPrice = int.MaxValue;
+
+    foreach (var item in stock)
+    {
+        if (item.Price < lowestPrice)
+        {
+            lowestPrice = item.Price;
+        }
+    }
 }
 
-<div class="text-center">
-    
+<div class="product-view">
+    <img class="product-view--image" src="@imageURL" />
+    <div class="product-side-content">
+        <span class="product-side-content--text">@Model.Name</span>
+        <span class="product-side-content--text" id="price">@if (stock.Count > 1) { <text>From @lowestPrice SEK</text> } else { <text>@lowestPrice SEK</text> }</span>
+
+        <div class="selector-container">
+            <select class="size-selector" value="">
+                <option value="">Select size</option>
+
+                @foreach (var item in stock)
+                {
+                    <option value="@item.Id" @if (item.Quantity == 0) { <text>disabled</text> }>@item.Size</option>
+                }
+            </select>
+            <div class="selector-outer">
+                <span class="selector-outer--text">Select size</span>
+                <svg viewBox="0 0 20 20" class="icon">
+                    <path d="M10 16l-4-4h8l-4 4zm0-12l4 4H6l4-4z"></path>
+                </svg>
+            </div>
+        </div>
+
+        @if (stock.Any(item => item.Quantity > 0))
+        {
+            <button class="add-to-cart--button">ADD TO CART</button>
+            <span class="added-to-cart--text hidden">Added to your cart!</span>
+        }
+        else
+        {
+            <span class="soldout--text">Soldout</span>
+        }
+
+    </div>
 </div>
+
+<script>
+    const show = element => element.classList.contains("hidden") ? element.classList.remove("hidden") : null;
+    const hide = element => !element.classList.contains("hidden") ? element.classList.add("hidden") : null;
+
+    let selected = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const cart = getCartFromCookies();
+        const stock = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(stock));
+        const lowestPrice = @Html.Raw(lowestPrice);
+
+        const elements = {
+            sizeSelector: document.querySelector(".size-selector"),
+            addToCartButton: document.querySelector(".add-to-cart--button"),
+            addedToCartText: document.querySelector(".added-to-cart--text"),
+            selectorOuterText: document.querySelector(".selector-outer--text"),
+            productPriceText: document.querySelector(".product-side-content--text#price")
+        }
+
+        initializeSelectors({ stock, cart, lowestPrice, elements });
+        initializeAddToCartButton({ stock, cart, elements });
+    });
+
+    function getCartFromCookies() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === "cart") {
+                return JSON.parse(decodeURIComponent(value));
+            }
+        }
+        return [];
+    }
+
+    function initializeSelectors({ stock, cart, lowestPrice, elements }) {
+        const { sizeSelector, addToCartButton, addedToCartText, selectorOuterText, productPriceText } = elements;
+
+        Array.from(sizeSelector.children)
+            .filter(item => cart.includes(parseInt(item.value)))
+            .forEach(item => item.disabled = true);
+
+        sizeSelector.addEventListener("change", (event) => {
+            selected = parseInt(event.target.value);
+            const product = stock.find(item => item.Id === selected);
+
+            selectorOuterText.innerText = product ? product.Size : "Select Size";
+            productPriceText.innerText = product ? `${product.Price} SEK` : `From ${lowestPrice} SEK`;
+
+            if (product && product.Quantity > 0) {
+                show(addToCartButton);
+                hide(addedToCartText);
+
+                !addToCartButton.classList.contains("available") ? addToCartButton.classList.add("available") : null;
+            } else {
+                addToCartButton.classList.contains("available") ? addToCartButton.classList.remove("available") : null;
+            }
+        });
+    }
+
+    function initializeAddToCartButton({ stock, cart, elements }) { 
+        const { sizeSelector, addToCartButton, addedToCartText } = elements;
+
+        addToCartButton.addEventListener("click", () => {
+            if (!stock.find(item => item.Id === selected) || cart.includes(selected)) return;
+
+            try {
+                cart.push(selected);
+                document.cookie = `cart=${encodeURIComponent(JSON.stringify(cart))}; path=/`;
+
+                hide(addToCartButton);
+                show(addedToCartText);
+
+                Array.from(sizeSelector.children).find(item => item.value === selected.toString()).disabled = true;
+            } catch (err) {
+                console.error("Couldn't add to cart", err);
+            }
+        });
+    }
+</script>
