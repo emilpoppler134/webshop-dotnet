@@ -57,12 +57,6 @@
     const show = element => element.classList.contains("hidden") ? element.classList.remove("hidden") : null;
     const hide = element => !element.classList.contains("hidden") ? element.classList.add("hidden") : null;
 
-    const addMultipleEventListeners = (el, types, listener) => {
-        types.forEach(type =>
-            el.addEventListener(type, listener)
-        );
-    };
-
     let selected = null;
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -80,6 +74,10 @@
 
         initializeSelectors({ stock, lowestPrice, cart, elements });
         initializeAddToCartButton({ stock, cart, elements });
+
+        window.addEventListener("beforeunload", () => {
+            elements.sizeSelector.selectedIndex = 0;
+        });
     });
 
     function getCartFromCookies() {
@@ -100,17 +98,17 @@
             .filter(item => cart.includes(parseInt(item.value)))
             .forEach(item => item.disabled = true);
 
-        addMultipleEventListeners(sizeSelector, ["change", "focus"], (event) => {
+        sizeSelector.addEventListener("change", (event) => {
             selected = parseInt(event.target.value);
             const product = stock.find(item => item.Id === selected);
 
             selectorOuterText.innerText = product ? product.Size : "Select Size";
             productPriceText.innerText = product ? `${product.Price} SEK` : `From ${lowestPrice} SEK`;
 
-            if (product && product.Quantity > 0) {
-                show(addToCartButton);
-                hide(addedToCartText);
+            show(addToCartButton);
+            hide(addedToCartText);
 
+            if (product && product.Quantity > 0 && !cart.includes(product.Id)) {
                 !addToCartButton.classList.contains("available") ? addToCartButton.classList.add("available") : null;
             } else {
                 addToCartButton.classList.contains("available") ? addToCartButton.classList.remove("available") : null;
