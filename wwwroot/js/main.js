@@ -3,3 +3,5 @@
 
 // Write your JavaScript code.
 
+const show = element => element.classList.contains("hidden") ? element.classList.remove("hidden") : null;
+const hide = element => !element.classList.contains("hidden") ? element.classList.add("hidden") : null;

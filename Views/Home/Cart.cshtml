@@ -58,8 +58,6 @@
 </div>
 
 <script>
-	const show = element => element.classList.contains("hidden") ? element.classList.remove("hidden") : null;
-
     document.addEventListener("DOMContentLoaded", function () {
         const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(products));
         const shippingFee = @Html.Raw(shippingFee);
