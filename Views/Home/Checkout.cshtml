@@ -1,8 +1,310 @@
-﻿@{
+﻿@using Webshop.Models;
+
+@{
     ViewData["Title"] = "Checkout";
+
+    List<StockExtended> products = Model;
+	
+	int shippingFee = 99;
 }
 
-<div class="text-center">
-    <span>This is the checkout page</span>
+<div class="checkout-view">
+    <div class="app-multiItem">
+        <div class="overview">
+            <div class="product-summary">
+                <span class="product-summary-header">Checkout</span>
+                <span class="product-summary-amount">SEK 0.00</span>
+            </div>
+            <section class="orderDetails">
+                <ul class="orderDetails-list">
+                    @foreach (StockExtended item in products)
+                    {
+                        string productURL = string.Format("/products/{0}", item.Product.Id);
+    		            string imageURL = string.Format("/images/products/{0}_small.png", item.Product.Image);
+
+                        <li class="orderDetails-item">
+                            <img class="orderDetails-item--image" src="@imageURL" />
+                            <div class="orderDetails-item--info">
+                                <a href="@productURL" class="name">
+                                    <span>@item.Product.Name</span>
+                                </a>
+                                <span class="size">Size: @item.Size</span>
+                            </div>
+                            <span class="price">SEK @item.Price.00</span>
+                        </li>
+                    }
+                </ul>
+                <div class="orderDetails-footer">
+                    <div class="subtotal-container">
+                        <span>Subtotal</span>
+                        <span class="subtotal--value">SEK 0.00</span>
+                    </div>
+                    <div class="orderDetailsFooter-subtotalItems">
+                        <div class="promotionCodeEntry">
+                            <div class="promotionCodeEntry-container">
+                                <input type="text" placeholder="Add promotion code" class="promotionCodeEntry-Input" autocapitalize="none" autocorrect="off" spellcheck="false">
+                                <button class="promotionCodeEntry-ApplyButton">Apply</button>
+                            </div>
+                            <div class="promotionCodeEntry-applied">
+                                <div class="coupon">
+                                    <img :src="discountCodeIcon">
+                                    <span class="promotionCodeEntry-code"></span>
+                                    <button class="remove-coupon">
+                                        <svg class="icon" fill="#697386" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M8 6.585l4.593-4.592a1 1 0 111.415 1.416L9.417 8l4.591 4.591a1 1 0 11-1.415 1.416L8 9.415l-4.592 4.592a1 1 0 11-1.416-1.416L6.584 8l-4.59-4.591a1 1 0 111.415-1.416L8 6.585z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <span class="promotionCodeEntry-amount_off"></span>
+                            </div>
+                            <span class="promotionCodeEntry-status"></span>
+                        </div>
+                        <div class="shipping-container">
+                            <div class="orderDetails-shipping-label">
+                                <span class="orderDetails-shipping-Text">Shipping</span>
+                                <span class="orderDetails-shipping-Undertext">Sweden (1-3 busniess days)</span>
+                            </div>
+                            <span class="shipping-amount">SEK 0.00</span>
+                        </div>
+                    </div>
+                    <div class="orderDetails-total--container">
+                        <span>Total due</span>
+                        <span class="orderDetails-total">SEK 0.00</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="app-payment">
+            <form novalidate>
+                <div class="global-fields">
+                    <div class="shipping-fields flex-wrap">
+                        <div class="flex-item">
+                            <span class="shippingDetails-Heading">Shipping information</span>
+                        </div>
+                        <div class="flex-item">
+                            <span class="checkoutInputHeader">Email</span>
+                            <input type="text" class="checkoutInput full-border-radius" name="email" autocapitalize="none" autocomplete="email" autocorrect="off" spellcheck="false">
+                            <span class="validation-message hidden" for="email">Invalid email address.</span>
+                        </div>
+                        <div class="flex-item flex-wrap">
+                            <span class="checkoutInputHeader">Shipping address</span>
+                            <input type="text" class="checkoutInput top-border-radius" name="name" placeholder="Full name" autocapitalize="none" autocomplete="name" autocorrect="off" spellcheck="false">
+                            <select name="country" class="checkoutInput selector country">
+                                <option value="SE">Sweden</option>
+                            </select>
+                            <div class="address_container" style="position: relative; width: 100%">
+                                <input type="text" class="checkoutInput address" name="address_line1" placeholder="Address" autocapitalize="none" autocomplete="address_line1" autocorrect="off" spellcheck="false">
+                                <div class="google-suggestions">
+                                    <ul class="suggestion-list"></ul>
+                                </div>
+                            </div>
+                            <input type="text" class="checkoutInput width-50" name="postal_code" placeholder="Postal code" autocapitalize="none" autocomplete="postal_code" autocorrect="off" spellcheck="false">
+                            <input type="text" class="checkoutInput width-50" name="city" placeholder="Town or city" autocapitalize="none" autocomplete="address_level2" autocorrect="off" spellcheck="false">
+                            <input type="text" class="checkoutInput bottom-border-radius" name="phone" placeholder="Phone" autocapitalize="none" autocomplete="tel" autocorrect="off" spellcheck="false">
+                        </div>
+                    </div>
+                    <div class="payment-fields flex-wrap">
+                        <div class="flex-item">
+                            <span class="shippingDetails-Heading">Payment details</span>
+                        </div>
+                        <div class="flex-item">
+                            <span class="checkoutInputHeader">Name on card</span>
+                            <input type="text" class="checkoutInput full-border-radius" name="cc_name" autocapitalize="none" autocomplete="cc-name" autocorrect="off" spellcheck="false">
+                        </div>
+                        <div class="flex-item flex-wrap">
+                            <span class="checkoutInputHeader">Card information</span>
+                            <div style="position: relative; width: 100%;">
+                                <input type="text" class="checkoutInput top-border-radius" name="cc_number" placeholder="1234 1234 1234 1234" autocapitalize="none" autocomplete="cc-number" autocorrect="off" spellcheck="false" maxlength='19'>
+                                <div class="card-icons">
+                                    <img src="/images/icons/VisaCardIcon.svg" alt="Visa">
+                                    <img src="/images/icons/MasterCardIcon.svg" alt="Mastercard">
+                                    <img src="/images/icons/AmexCardIcon.svg" alt="Amex">
+                                </div>
+                            </div>
+                            <input type="text" class="checkoutInput width-50 bottom-left-border-radius" name="cc_exp" placeholder="MM / YY" autocapitalize="none" autocomplete="cc-exp" autocorrect="off" spellcheck="false" maxlength='7'>
+                            <input type="text" class="checkoutInput width-50 bottom-right-border-radius" name="cc_csc" placeholder="CVC" autocapitalize="none" autocomplete="cc-csc" autocorrect="off" spellcheck="false" maxlength='4'>
+                        </div>
+                    </div>
+                </div>
+                <div class="confirmPaymentContainer">
+                    <button class="SubmitButton" type="submit">
+                        <span class="SubmitButton-Text">Pay</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+        const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(products));
+        const shippingFee = @Html.Raw(shippingFee);
+
+        const elements = {
+            // Amount text elements
+			productSummaryAmount: document.querySelector(".product-summary-amount"),
+            subtotalAmountElement: document.querySelector(".subtotal--value"),
+            shippingAmountElement: document.querySelector(".shipping-amount"),
+            orderDetailsTotal: document.querySelector(".orderDetails-total"),
+            // Validation elements
+            emailValidationText: document.querySelector(".validation-message[for=email]"),
+            // Inputs
+            emailInput: document.querySelector(".checkoutInput[name=email]"),
+            ccNumberInput: document.querySelector(".checkoutInput[name=cc_number]"),
+            ccExpInput: document.querySelector(".checkoutInput[name=cc_exp]"),
+            // Buttons
+            appPaymentForm: document.querySelector("form")
+        }
+
+        const subtotal = products
+			.map(item => item.Price)
+			.reduce((a, b) => a + b, 0);
+		const total = subtotal + shippingFee;
+
+        const {
+            productSummaryAmount, 
+            subtotalAmountElement, 
+            shippingAmountElement, 
+            orderDetailsTotal 
+        } = elements;
+
+        productSummaryAmount.innerText = `SEK ${total}.00`;
+        subtotalAmountElement.innerText = `SEK ${subtotal}.00`;
+        shippingAmountElement.innerText = `SEK ${shippingFee}.00`;
+        orderDetailsTotal.innerText = `SEK ${total}.00`;
+
+        initializeEmailInput({ elements });
+        initializeCCNumberInput({ elements });
+        initializeCCExpInput({ elements });
+        initializeAppPaymentForm({ elements, products });
+    });
+
+    function initializeEmailInput({ elements }) {
+        const { emailInput, emailValidationText } = elements;
+
+        emailInput.addEventListener("change", () => {
+            const validation = String(emailInput.value)
+                .toLowerCase()
+                .match(
+                    /^(([^<>()[\]\\.,;:\s@@"]+(\.[^<>()[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                );
+
+            if (!validation) {
+                show(emailValidationText);
+
+                if (!emailInput.classList.contains("invalid")) {
+                    emailInput.classList.add("invalid");
+                }
+            } else {
+                hide(emailValidationText);
+
+                if (emailInput.classList.contains("invalid")) {
+                    emailInput.classList.remove("invalid");
+                }
+            }
+        });
+    }
+
+    function initializeCCNumberInput({ elements }) {
+        const { ccNumberInput } = elements;
+
+        ccNumberInput.addEventListener("input", (event) => {
+            const unformattedValue = event.target.value.replace(/\s/g, '');
+
+            const formattedValue = unformattedValue
+                .replace(/\D/g, '')
+                .replace(/(\d{4})(?=\d)/g, '$1 ');
+
+            event.target.value = formattedValue;
+        });
+    }
+
+    function initializeCCExpInput({ elements }) {
+        const { ccExpInput } = elements;
+
+        ccExpInput.addEventListener("input", (event) => {
+            let unformattedValue = event.target.value.replace(/[^0-9]/g, '');
+
+            if (unformattedValue.length > 4) {
+                unformattedValue = unformattedValue.substr(0, 4);
+            }
+
+            if (unformattedValue.length > 2) {
+                const mm = unformattedValue.substr(0, 2);
+                const yy = unformattedValue.substr(2);
+                unformattedValue = `${mm} / ${yy}`;
+            }
+
+            event.target.value = unformattedValue;
+        });
+    }
+
+    function initializeAppPaymentForm({ elements, products }) {
+        const { appPaymentForm } = elements;
+
+        appPaymentForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const form = event.target;
+
+            try {
+                const payload = {
+                    products: products.map(item => item.Id),
+                    promotionCode: null,
+                    customer: {
+                        name: form.name.value,
+                        email: form.email.value,
+                        phone: form.phone.value,
+                        billing: {
+                            line1: form.address_line1.value,
+                            line2: null,
+                            postal_code: form.postal_code.value,
+                            city: form.city.value,
+                            state: null,
+                            country: form.country.value
+                        }
+                    },
+                    shipping: {
+                        name: form.name.value,
+                        phone: form.phone.value,
+                        address: {
+                            line1: form.address_line1.value,
+                            line2: null,
+                            postal_code: form.postal_code.value,
+                            city: form.city.value,
+                            state: null,
+                            country: form.country.value
+                        }
+                    },
+                    payment: {
+                        cc_name: form.cc_name.value,
+                        cc_number: form.cc_number.value,
+                        cc_exp: form.cc_exp.value,
+                        cc_csc: form.cc_csc.value
+                    }
+                };
+
+                const paymentResponse = await sendPayment(payload);
+            } catch(err) {
+                console.error(err);
+            }
+        });
+    }
+
+    async function sendPayment(payload) {
+        try {
+            const options = {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }
+            const response = await fetch("/checkout/charge", options);
+            return response.ok ? await response.json() : null;
+        } catch(err) {
+            return null;
+        }
+    }
+</script>
