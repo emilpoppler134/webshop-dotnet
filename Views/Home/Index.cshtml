@@ -1,8 +1,49 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Webshop.Models;
+
+@{
+    ViewData["Title"] = "Official Website";
+
+    List<ProductExtended> products = Model;
 }
 
-<div class="text-center">
-    <span>This is the main page</span>
-</div>
+<section class="product-navigator">
+    <div class="product-navigator--header">
+        <span class="product-title">New arrivals</span>
+    </div>
+    <div class="product-container">
+        @foreach (ProductExtended product in products)
+        {
+            string productURL = string.Format("/products/{0}", product.Id);
+            string imageURL = string.Format("/images/products/{0}_small.png", product.Image);
+            int lowestPrice = int.MaxValue;
 
+            foreach (Stock item in product.Stock)
+            {
+                if (item.Price < lowestPrice)
+                {
+                    lowestPrice = item.Price;
+                }
+            }
+
+            <div class="product-item">
+                <a href="@productURL">
+                    <div class="product-item--image">
+                        <img src="@imageURL" />
+                    </div>
+                    <div class="product-item--info">
+                        <span>@product.Name</span>
+                        <span>@if (product.Stock.Count > 1) { <text>From @lowestPrice SEK</text> } else { <text>@lowestPrice SEK</text> }</span>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+    <div class="dots">
+        <div class="dot active"></div>
+
+        @for (int i = 1; i < products.Count; i++)
+        {
+            <div class="dot"></div>
+        }
+    </div>
+</section>

@@ -17,7 +17,29 @@ namespace Webshop.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View();
+            var response = await (
+                from product in _context.Products
+                select new ProductExtended
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Image = product.Image,
+                    Stock = (
+                        from stock in _context.Stocks
+                        where stock.ProductId == product.Id
+                        select stock
+                    ).ToList()
+                }
+            ).ToListAsync();
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            List<ProductExtended> products = response;
+
+            return View(products);
         }
 
         public async Task<IActionResult> Cart()
