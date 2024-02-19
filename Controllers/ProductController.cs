@@ -40,9 +40,9 @@ namespace Webshop.Controllers
                 return NotFound();
             }
 
-            ProductExtended productExtended = response;
+            ProductExtended extendedProduct = response;
 
-            return View(productExtended);
+            return View(extendedProduct);
         }
     }
 }
