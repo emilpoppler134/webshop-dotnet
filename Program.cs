@@ -50,11 +50,6 @@ namespace Webshop
                 defaults: new { controller = "Home", action = "Cart" });
 
             server.MapControllerRoute(
-                name: "checkout",
-                pattern: "checkout",
-                defaults: new { controller = "Home", action = "Checkout" });
-
-            server.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}",
                 defaults: new { controller = "Home", action = "Index" });
