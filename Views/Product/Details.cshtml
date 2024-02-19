@@ -1,13 +1,14 @@
 ﻿@using Webshop.Models;
 
 @{
-    ViewData["Title"] = Model.Name;
-    string imageURL = string.Format("/images/products/{0}_large.png", Model.Image);
+    ProductExtended product = Model;
 
-    List<Stock> stock = Model.Stock;
+    ViewData["Title"] = product.Name;
+
+    string imageURL = string.Format("/images/products/{0}_large.png", product.Image);
     int lowestPrice = int.MaxValue;
 
-    foreach (var item in stock)
+    foreach (var item in product.Stock)
     {
         if (item.Price < lowestPrice)
         {
@@ -19,14 +20,14 @@
 <div class="product-view">
     <img class="product-view--image" src="@imageURL" />
     <div class="product-side-content">
-        <span class="product-side-content--text">@Model.Name</span>
-        <span class="product-side-content--text" id="price">@if (stock.Count > 1) { <text>From @lowestPrice SEK</text> } else { <text>@lowestPrice SEK</text> }</span>
+        <span class="product-side-content--text">@product.Name</span>
+        <span class="product-side-content--text" id="price">@if (product.Stock.Count > 1) { <text>From @lowestPrice SEK</text> } else { <text>@lowestPrice SEK</text> }</span>
 
         <div class="selector-container">
-            <select class="size-selector" value="">
+            <select class="size-selector">
                 <option value="">Select size</option>
 
-                @foreach (var item in stock)
+                @foreach (Stock item in product.Stock)
                 {
                     <option value="@item.Id" @if (item.Quantity == 0) { <text>disabled</text> }>@item.Size</option>
                 }
@@ -39,7 +40,7 @@
             </div>
         </div>
 
-        @if (stock.Any(item => item.Quantity > 0))
+        @if (product.Stock.Any(item => item.Quantity > 0))
         {
             <button class="add-to-cart--button">ADD TO CART</button>
             <span class="added-to-cart--text hidden">Added to your cart!</span>
@@ -56,12 +57,18 @@
     const show = element => element.classList.contains("hidden") ? element.classList.remove("hidden") : null;
     const hide = element => !element.classList.contains("hidden") ? element.classList.add("hidden") : null;
 
+    const addMultipleEventListeners = (el, types, listener) => {
+        types.forEach(type =>
+            el.addEventListener(type, listener)
+        );
+    };
+
     let selected = null;
 
     document.addEventListener("DOMContentLoaded", function () {
-        const cart = getCartFromCookies();
-        const stock = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(stock));
+        const stock = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(product.Stock));
         const lowestPrice = @Html.Raw(lowestPrice);
+        const cart = getCartFromCookies();
 
         const elements = {
             sizeSelector: document.querySelector(".size-selector"),
@@ -71,7 +78,7 @@
             productPriceText: document.querySelector(".product-side-content--text#price")
         }
 
-        initializeSelectors({ stock, cart, lowestPrice, elements });
+        initializeSelectors({ stock, lowestPrice, cart, elements });
         initializeAddToCartButton({ stock, cart, elements });
     });
 
@@ -86,14 +93,14 @@
         return [];
     }
 
-    function initializeSelectors({ stock, cart, lowestPrice, elements }) {
+    function initializeSelectors({ stock, lowestPrice, cart, elements }) {
         const { sizeSelector, addToCartButton, addedToCartText, selectorOuterText, productPriceText } = elements;
 
         Array.from(sizeSelector.children)
             .filter(item => cart.includes(parseInt(item.value)))
             .forEach(item => item.disabled = true);
 
-        sizeSelector.addEventListener("change", (event) => {
+        addMultipleEventListeners(sizeSelector, ["change", "focus"], (event) => {
             selected = parseInt(event.target.value);
             const product = stock.find(item => item.Id === selected);
 
