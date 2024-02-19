@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Webshop.Models;
 
-public class ProductContext : DbContext
+public class WebshopContext : DbContext
 {
     public DbSet<Product> Products { get; set; }
     public DbSet<Stock> Stocks { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderedProduct> OrderedProducts { get; set; }
 
 	public void Initialize()
 	{

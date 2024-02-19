@@ -23,9 +23,9 @@ namespace Webshop
 
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddScoped<ProductContext>(provider =>
+            builder.Services.AddScoped<WebshopContext>(provider =>
             {
-                return new ProductContext();
+                return new WebshopContext();
             });
 
             var server = builder.Build();
@@ -33,8 +33,8 @@ namespace Webshop
             using (var serviceScope = server.Services.CreateScope())
             {
                 var serviceProvider = serviceScope.ServiceProvider;
-                var productContext = serviceProvider.GetRequiredService<ProductContext>();
-                productContext.Initialize();
+                var webshopContext = serviceProvider.GetRequiredService<WebshopContext>();
+                webshopContext.Initialize();
             }
 
             if (!server.Environment.IsDevelopment())
