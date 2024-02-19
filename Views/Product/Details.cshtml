@@ -69,8 +69,8 @@
             productPriceText: document.querySelector(".product-side-content--text#price")
         }
 
-        initializeSelectors({ stock, lowestPrice, cart, elements });
-        initializeAddToCartButton({ stock, cart, elements });
+        initializeSelectors(stock, lowestPrice, cart, elements);
+        initializeAddToCartButton(stock, cart, elements);
 
         window.addEventListener("beforeunload", () => {
             elements.sizeSelector.selectedIndex = 0;
@@ -88,9 +88,7 @@
         return [];
     }
 
-    function initializeSelectors({ stock, lowestPrice, cart, elements }) {
-        const { sizeSelector, addToCartButton, addedToCartText, selectorOuterText, productPriceText } = elements;
-
+    function initializeSelectors(stock, lowestPrice, cart, { sizeSelector, addToCartButton, addedToCartText, selectorOuterText, productPriceText }) {
         Array.from(sizeSelector.children)
             .filter(item => cart.includes(parseInt(item.value)))
             .forEach(item => item.disabled = true);
@@ -113,9 +111,7 @@
         });
     }
 
-    function initializeAddToCartButton({ stock, cart, elements }) { 
-        const { sizeSelector, addToCartButton, addedToCartText } = elements;
-
+    function initializeAddToCartButton(stock, cart, { sizeSelector, addToCartButton, addedToCartText }) { 
         addToCartButton.addEventListener("click", () => {
             if (!stock.find(item => item.Id === selected) || cart.includes(selected)) return;
 

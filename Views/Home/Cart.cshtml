@@ -73,10 +73,10 @@
             totalElement: document.querySelector(".total--value")
         }
 
-        updateCartSummary({ products, shippingFee, cart, elements });
+        updateCartSummary(products, shippingFee, cart, elements);
 
-        initializeRemoveFromCartButtons({ products, shippingFee, cart, elements });
-        initializeCheckoutButton({ elements, cart });
+        initializeRemoveFromCartButtons(products, shippingFee, cart, elements);
+        initializeCheckoutButton(cart, elements);
     });
 
     function getCartFromCookies() {
@@ -90,9 +90,7 @@
         return [];
     }
 
-    function initializeRemoveFromCartButtons({ products, shippingFee, cart, elements }) {
-        const { removeFromCartButtonList, emptyCartText } = elements;
-
+    function initializeRemoveFromCartButtons(products, shippingFee, cart, { removeFromCartButtonList, emptyCartText }) {
         removeFromCartButtonList.forEach((element) => {
 			element.addEventListener("click", (event) => {
 				const id = element.closest(".cart-item").getAttribute("data-item-id").value;
@@ -108,7 +106,7 @@
 					}
 
 					element.closest(".cart-item").remove();
-					updateCartSummary({ products, shippingFee, cart, elements });
+					updateCartSummary(products, shippingFee, cart, elements);
 				} catch (err) {
 					console.error("Couldn't add to cart", err);
 				}
@@ -116,9 +114,7 @@
 		});
     }
 
-	function updateCartSummary({ products, shippingFee, cart, elements }) {
-		const { subtotalElement, shippingFeeElement, totalElement } = elements;
-		
+	function updateCartSummary(products, shippingFee, cart, { subtotalElement, shippingFeeElement, totalElement }) {		
 		const subtotal = cart
 			.map(item => products.find(product => product.Id === item).Price)
 			.reduce((a, b) => a + b, 0);
@@ -130,9 +126,7 @@
 		totalElement.innerText = total + ".00 SEK";
 	}
 
-    function initializeCheckoutButton({ elements, cart }) { 
-        const { checkoutButton } = elements;
-
+    function initializeCheckoutButton(cart, { checkoutButton }) { 
         checkoutButton.addEventListener("click", () => {
             if (cart.length > 0) {
 				window.location.href = "/checkout";
