@@ -27,9 +27,9 @@ public class ProductContext : DbContext
     private void SeedProductData()
     {
         Products.AddRange(
-            new Product { Name = "Produkt 1", Image = "xxxx-xxxx-xxxx-xxxx" },
-            new Product { Name = "Produkt 2", Image = "xxxx-xxxx-xxxx-xxxx" },
-            new Product { Name = "Produkt 3", Image = "xxxx-xxxx-xxxx-xxxx" }
+            new Product { Name = "Apostle Shirt", Image = "2e123620-5c1a-4516-9fcd-2e7fef7860e2" },
+            new Product { Name = "T-Bone Hoodie", Image = "5b2dae83-5460-492d-af72-37b365a06dfa" },
+            new Product { Name = "Evisu hoodie", Image = "082d8b95-93a04a-d4d4-2ecbf433d6" }
         );
 
         SaveChanges();
