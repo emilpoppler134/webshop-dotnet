@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Webshop.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 using Stripe;
 
 namespace Webshop.Controllers
@@ -71,8 +72,43 @@ namespace Webshop.Controllers
                 var products = payload.products;
                 var customerInfo = payload.customer;
                 var billingAddress = customerInfo.billing;
-                var shippingAddress = payload.shipping;
+                var shipping = payload.shipping;
                 var paymentInfo = payload.payment;
+                
+                // Validate products
+                if (products.Length == 0)
+                {
+                    return Json(new PaymentResponse{ Status = 400, Message = "Invalid product info provided." });
+                }
+                // Validate Customer
+                if (string.IsNullOrEmpty(customerInfo.name) || 
+                    string.IsNullOrEmpty(customerInfo.phone) || 
+                    string.IsNullOrEmpty(customerInfo.email) || 
+                    string.IsNullOrEmpty(customerInfo.billing.line1) || 
+                    string.IsNullOrEmpty(customerInfo.billing.postal_code) || 
+                    string.IsNullOrEmpty(customerInfo.billing.city) || 
+                    string.IsNullOrEmpty(customerInfo.billing.country))
+                {
+                    return Json(new PaymentResponse{ Status = 400, Message = "Invalid customer info provided." });
+                }
+                // Validate Shipping
+                if (string.IsNullOrEmpty(shipping.name) || 
+                    string.IsNullOrEmpty(shipping.phone) || 
+                    string.IsNullOrEmpty(shipping.address.line1) || 
+                    string.IsNullOrEmpty(shipping.address.postal_code) || 
+                    string.IsNullOrEmpty(shipping.address.city) || 
+                    string.IsNullOrEmpty(shipping.address.country))
+                {
+                    return Json(new PaymentResponse{ Status = 400, Message = "Invalid shipping info provided." });
+                }
+                // Validate Payment
+                if (string.IsNullOrEmpty(paymentInfo.cc_name) || 
+                    string.IsNullOrEmpty(paymentInfo.cc_number) || 
+                    string.IsNullOrEmpty(paymentInfo.cc_exp) || 
+                    string.IsNullOrEmpty(paymentInfo.cc_csc))
+                {
+                    return Json(new PaymentResponse{ Status = 400, Message = "Invalid payment info provided." });
+                }
 
                 string ccExp = paymentInfo.cc_exp;
                 string[] expParts = ccExp.Split('/');
@@ -100,11 +136,11 @@ namespace Webshop.Controllers
 
                     if (extendedStock == null)
                     {
-                        return BadRequest();
+                        return Json(new PaymentResponse{ Status = 400, Message = "The product doesn't exist." });
                     }
                     if (extendedStock.Quantity == 0)
                     {
-                        return BadRequest();
+                        return Json(new PaymentResponse{ Status = 400, Message = "The product is soldout." });
                     }
 
                     amount += extendedStock.Price;
@@ -144,16 +180,16 @@ namespace Webshop.Controllers
                     },
                     Shipping = new ShippingOptions
                     {
-                        Name = shippingAddress.name,
-                        Phone = shippingAddress.phone,
+                        Name = shipping.name,
+                        Phone = shipping.phone,
                         Address = new AddressOptions
                         {
-                            Line1 = shippingAddress.address.line1,
+                            Line1 = shipping.address.line1,
                             Line2 = null,
-                            PostalCode = shippingAddress.address.postal_code,
-                            City = shippingAddress.address.city,
+                            PostalCode = shipping.address.postal_code,
+                            City = shipping.address.city,
                             State = null,
-                            Country = shippingAddress.address.country
+                            Country = shipping.address.country
                         }
                     },
                     Source = token.Id
@@ -175,12 +211,12 @@ namespace Webshop.Controllers
                         Phone = customerInfo.phone,
                         Address = new AddressOptions
                         {
-                            Line1 = shippingAddress.address.line1,
+                            Line1 = shipping.address.line1,
                             Line2 = null,
-                            PostalCode = shippingAddress.address.postal_code,
-                            City = shippingAddress.address.city,
+                            PostalCode = shipping.address.postal_code,
+                            City = shipping.address.city,
                             State = null,
-                            Country = shippingAddress.address.country
+                            Country = shipping.address.country
                         }
                     }
                 };
@@ -215,16 +251,11 @@ namespace Webshop.Controllers
 
                 _context.SaveChanges();
 
-                return Ok(charge);
+                return Json(new PaymentResponse{ Status = 200 });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred while saving changes: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-                return BadRequest(ex.Message);
+                return Json(new PaymentResponse{ Status = 400, Message = ex.Message });
             }
         }
 	}

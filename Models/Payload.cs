@@ -21,7 +21,6 @@ namespace Webshop.Models
     public class Shipping
     {
         public string name { get; set; }
-        public string email { get; set; }
         public string phone { get; set; }
         public Address address { get; set; }
     }

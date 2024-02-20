@@ -124,6 +124,7 @@
                             <input type="text" class="checkoutInput width-50 bottom-left-border-radius" name="cc_exp" placeholder="MM / YY" autocapitalize="none" autocomplete="cc-exp" autocorrect="off" spellcheck="false" maxlength='7'>
                             <input type="text" class="checkoutInput width-50 bottom-right-border-radius" name="cc_csc" placeholder="CVC" autocapitalize="none" autocomplete="cc-csc" autocorrect="off" spellcheck="false" maxlength='4'>
                         </div>
+                        <span class="validation-message" for="payment"></span>
                     </div>
                 </div>
                 <div class="confirmPaymentContainer">
@@ -147,8 +148,9 @@
             subtotalAmountElement: document.querySelector(".subtotal--value"),
             shippingAmountElement: document.querySelector(".shipping-amount"),
             orderDetailsTotal: document.querySelector(".orderDetails-total"),
-            // Validation elements
+            // Message elements
             emailValidationText: document.querySelector(".validation-message[for=email]"),
+            paymentValidationText: document.querySelector(".validation-message[for=payment]"),
             // Inputs
             emailInput: document.querySelector(".checkoutInput[name=email]"),
             ccNumberInput: document.querySelector(".checkoutInput[name=cc_number]"),
@@ -234,7 +236,7 @@
         });
     }
 
-    function initializeAppPaymentForm(products, { appPaymentForm }) {
+    function initializeAppPaymentForm(products, { appPaymentForm, paymentValidationText }) {
         appPaymentForm.addEventListener("submit", async (event) => {
             event.preventDefault();
 
@@ -278,6 +280,12 @@
                 };
 
                 const paymentResponse = await sendPayment(payload);
+
+                if (paymentResponse.status === 400)
+                {
+                    paymentValidationText.innerText = paymentResponse.message;
+                    return;
+                }
 
                 window.location.href = "/checkout/success";
             } catch(err) {
