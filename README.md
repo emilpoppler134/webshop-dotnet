@@ -5,12 +5,12 @@ Ensure you have .NET Core SDK installed on your machine.
 
 1. Clone the repository:
 ```console
-git clone https://github.com/yourusername/yourproject.git
+git clone https://github.com/emilpoppler134/webshop-dotnet.git
 ```
 
 2. Navigate into the project directory
 ```bash
-cd yourproject
+cd webshop-dotnet
 ```
 
 3. Install dependencies:
