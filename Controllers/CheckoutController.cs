@@ -165,7 +165,7 @@ namespace Webshop.Controllers
                 // Create Stripe charge
                 var chargeOptions = new ChargeCreateOptions
                 {
-                    Amount = amount,
+                    Amount = amount * 100,
                     Currency = "sek",
                     Customer = customer.Id,
                     ReceiptEmail = customer.Email,
