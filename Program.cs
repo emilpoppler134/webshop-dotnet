@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Stripe;
 
 namespace Webshop
@@ -22,6 +23,8 @@ namespace Webshop
             StripeConfiguration.ApiKey = configuration.GetSection("Stripe")["SecretKey"];
 
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddControllers().AddNewtonsoftJson();
 
             builder.Services.AddScoped<WebshopContext>(provider =>
             {
