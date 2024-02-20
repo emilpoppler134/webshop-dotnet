@@ -278,6 +278,8 @@
                 };
 
                 const paymentResponse = await sendPayment(payload);
+
+                window.location.href "/";
             } catch(err) {
                 console.error(err);
             }
